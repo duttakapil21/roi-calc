@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ROI Calculator</title>
+</head>
+<body>
+    <h1>ROI Calculator</h1>
+    <label>kitProxy Rate: <input id="proxyRate" type="number" value="300"></label><br>
+    <h2>Without kitProxy</h2>
+    <label>Average Monthly Unique Visitors: <input id="visitorsWOK" type="number" value="40000"></label><br>
+    <label>Total HTTP resources on website homepage load: <input id="httpResourcesWOK" type="number" value="200"></label><br>
+    <label>Traffic to lead conversion rate: <input id="conversionRateWOK" type="number" value="2.5"></label><br>
+    <label>Lead to Revenue Rate (%): <input id="revenueRateWOK" type="number" value="2"></label><br>
+    <label>Average Sale Value (INR): <input id="saleValueWOK" type="number" value="7450"></label><br>
+    <button onclick="calculateWOK()">Calculate Without kitProxy</button>
+    <h2>With kitProxy</h2>
+    <label>Traffic increase percentage: <input id="trafficIncrease" type="number" value="10"></label><br>
+    <label>Lead gen increase: <input id="leadGenIncrease" type="number" value="2"></label><br>
+    <button onclick="calculateWK()">Calculate With kitProxy</button>
+    <h2>ROI</h2>
+    <button onclick="calculateROI()">Calculate ROI</button>
+    <div id="results"></div>
+    <script>
+        function calculateWOK() {
+            var visitorsWOK = Number(document.getElementById('visitorsWOK').value);
+            var httpResourcesWOK = Number(document.getElementById('httpResourcesWOK').value);
+            var conversionRateWOK = Number(document.getElementById('conversionRateWOK').value);
+            var revenueRateWOK = Number(document.getElementById('revenueRateWOK').value);
+            var saleValueWOK = Number(document.getElementById('saleValueWOK').value);
+            var httpRequestsWOK = visitorsWOK * httpResourcesWOK;
+            var leadsWOK = (visitorsWOK / 100) * conversionRateWOK;
+            var monthlyRevenueWOK = ((leadsWOK / 100) * revenueRateWOK) * saleValueWOK;
+            var yearlyRevenueWOK = monthlyRevenueWOK * 12;
+            return {visitorsWOK, httpRequestsWOK, conversionRateWOK, leadsWOK, monthlyRevenueWOK, yearlyRevenueWOK, revenueRateWOK, saleValueWOK};
+        }
+        function calculateWK() {
+            var trafficIncrease = Number(document.getElementById('trafficIncrease').value);
+            var leadGenIncrease = Number(document.getElementById('leadGenIncrease').value);
+            var WOK = calculateWOK();
+            var visitorsWK = (WOK.visitorsWOK / 100) * trafficIncrease + WOK.visitorsWOK;
+            var conversionRateWK = WOK.conversionRateWOK + leadGenIncrease;
+            var leadsWK = (visitorsWK / 100) * conversionRateWK;
+            var monthlyRevenueWK = ((leadsWK / 100) * WOK.revenueRateWOK) * WOK.saleValueWOK;
+            var yearlyRevenueWK = monthlyRevenueWK * 12;
+            return {visitorsWK, conversionRateWK, leadsWK, monthlyRevenueWK, yearlyRevenueWK};
+        }
+        function calculateROI() {
+            var proxyRate = Number(document.getElementById('proxyRate').value);
+            var WOK = calculateWOK();
+            var WK = calculateWK();
+            var proxyMonthlyCost = (WOK.httpRequestsWOK/10000) * proxyRate;
+            var proxyYearlyCost = proxyMonthlyCost * 12;
+            var increaseMonthlyRevenue = WK.monthlyRevenueWK - WOK.monthlyRevenueWOK;
+            var increaseYearlyRevenue = increaseMonthlyRevenue * 12;
+            var estimatedMonthlyROI = increaseMonthlyRevenue - proxyMonthlyCost;
+            var estimatedYearlyROI = estimatedMonthlyROI * 12;
+            document.getElementById('results').innerHTML = 
+                'kitProxy Monthly Cost: ' + proxyMonthlyCost + '<br>' + 
+                'kitProxy Yearly Cost: ' + proxyYearlyCost + '<br>' + 
+                'Increase in Monthly Revenue: ' + increaseMonthlyRevenue + '<br>' +
+                'Increase in Yearly Revenue: ' + increaseYearlyRevenue + '<br>' +
+                'Estimated Monthly ROI: ' + estimatedMonthlyROI + '<br>' +
+                'Estimated Yearly ROI: ' + estimatedYearlyROI;
+        }
+    </script>
+</body>
+</html>
